@@ -5,28 +5,33 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+
+permissions:
+  contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Generate snake svgs
         uses: Platane/snk/svg-only@v3
         with:
-          github_user_name: ${{ github.repository_owner }}
+          github_user_name: marcoodamo
           outputs: |
             dist/github-snake.svg
             dist/github-snake-dark.svg?palette=github-dark
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to output branch
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          publish_dir: dist
           publish_branch: output
+          force_orphan: true
           commit_message: "Update snake animation"
